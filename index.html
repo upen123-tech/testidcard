@@ -2,46 +2,80 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verifying Student ID...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Secure ID Verification</title>
     <style>
-        body { font-family: sans-serif; background-color: #f3f4f6; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .message { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
+        /* Reset and prevent scrolling on the body */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            background-color: #f1f5f9;
+            font-family: sans-serif;
+        }
+        
+        /* Iframe styling to hide the Google Banner */
+        #app-frame {
+            position: absolute;
+            top: -28px; /* Shifts the iframe up to hide the banner */
+            left: 0;
+            width: 100%;
+            height: calc(100% + 28px); /* Extends height to compensate */
+            border: none;
+            display: none; /* Hidden until domain check passes */
+        }
+
+        /* Loading / Error styles */
+        .message-container { display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .message-box { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 400px; }
         .spinner { width: 40px; height: 40px; border: 4px solid #e5e7eb; border-top: 4px solid #1e3a8a; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .error { color: #dc2626; font-weight: bold; }
+        .error-text { color: #dc2626; font-weight: bold; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <div class="message" id="status-container">
-        <div class="spinner" id="spinner"></div>
-        <h2 id="status-text" style="color: #1e3a8a;">Securely Verifying Record...</h2>
-        <p style="color: #6b7280; font-size: 14px;">Please wait while we fetch the student details.</p>
+
+    <!-- Loading State -->
+    <div class="message-container" id="status-container">
+        <div class="message-box">
+            <div class="spinner" id="spinner"></div>
+            <h2 id="status-title" style="color: #1e3a8a; margin: 0 0 10px 0;">Routing securely...</h2>
+            <p id="status-desc" style="color: #6b7280; font-size: 14px; margin: 0;">Please wait.</p>
+        </div>
     </div>
 
+    <!-- The Iframe that will house the Google App Script -->
+    <iframe id="app-frame" sandbox="allow-top-navigation allow-scripts allow-forms allow-same-origin"></iframe>
+
     <script>
-        // UPDATED DOMAIN LOCKING LOGIC
         const allowedDomain = "upen123-tech.github.io";
         const currentDomain = window.location.hostname;
-        
-        // UPDATED Active Google Apps Script Web App Endpoint
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxzcCq7bwptZ5zEAKGxqK0uQp_fe_iJ03hXG2gVmnzl1hwH6tgSuIFO2bCmVscEyxKz/exec";
 
+        // Domain Check
         if (currentDomain !== allowedDomain && currentDomain !== "localhost" && currentDomain !== "127.0.0.1" && currentDomain !== "") {
-            // Block execution if hosted on a cloned/unauthorized domain
             document.getElementById('spinner').style.display = 'none';
-            document.getElementById('status-text').innerHTML = "Access Denied";
-            document.getElementById('status-text').className = "error";
-            document.getElementById('status-container').innerHTML += "<p class='error'>Unauthorized domain detected. This verification portal can only be accessed via the official college URL.</p>";
+            document.getElementById('status-title').innerText = "Access Denied";
+            document.getElementById('status-title').className = "error-text";
+            document.getElementById('status-desc').innerText = "Unauthorized domain detected. This verification portal can only be accessed via the official college URL.";
         } else {
-            // If domain is valid, grab the QR tokens from URL and forward to Apps Script
+            // Valid Domain! Setup the iframe URL with QR params
             const params = window.location.search;
-            if(params) {
-                window.location.replace(WEB_APP_URL + params);
+            
+            if (params) {
+                // Construct URL and assign to iframe
+                const frame = document.getElementById('app-frame');
+                frame.src = WEB_APP_URL + params;
+                
+                // Hide the loading box and show the full-screen iframe
+                document.getElementById('status-container').style.display = 'none';
+                frame.style.display = 'block';
             } else {
                 document.getElementById('spinner').style.display = 'none';
-                document.getElementById('status-text').innerHTML = "Invalid Request";
-                document.getElementById('status-text').className = "error";
+                document.getElementById('status-title').innerText = "Invalid Request";
+                document.getElementById('status-title').className = "error-text";
+                document.getElementById('status-desc').innerText = "No secure token was found in the URL.";
             }
         }
     </script>
