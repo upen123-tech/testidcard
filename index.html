@@ -10,13 +10,13 @@
             padding: 0;
             height: 100%;
             background-color: #f1f5f9;
-            overflow: hidden; /* Prevents scrolling up to see the hidden banner */
+            overflow: hidden; 
         }
         
         .iframe-wrapper {
             width: 100%;
-            height: calc(100% + 36px); /* Compensates for the negative margin */
-            margin-top: -36px; /* Shifts the Google banner completely off-screen */
+            height: calc(100% + 36px); 
+            margin-top: -36px; 
         }
 
         iframe {
@@ -32,18 +32,13 @@
     </div>
 
     <script>
-        // Extract the QR scan parameters
         const urlParams = new URLSearchParams(window.location.search);
         const g = urlParams.get('g') || '';
         const t = urlParams.get('t') || '';
         
-        // Your Google Apps Script Web App URL
         const webAppUrl = "https://script.google.com/macros/s/AKfycbyda-Db7xvYXVKEAJxn_9q7NaUNFgjRtfBOx1X1ASQcArWUQLJ0EdVROmJwEZafVwlY/exec";
-        
-        // The secret handshake key for Server-Side Domain Locking
         const secretLockKey = "dduc_gh_auth_2026";
         
-        // Pass parameters and the lock key into the iframe
         if (g && t) {
             document.getElementById('gas-frame').src = webAppUrl + "?g=" + encodeURIComponent(g) + "&t=" + encodeURIComponent(t) + "&lock=" + secretLockKey;
         } else {
