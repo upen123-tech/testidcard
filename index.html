@@ -32,13 +32,18 @@
     </div>
 
     <script>
+        // Extract the QR scan parameters
         const urlParams = new URLSearchParams(window.location.search);
         const g = urlParams.get('g') || '';
         const t = urlParams.get('t') || '';
         
-        const webAppUrl = "https://script.google.com/macros/s/AKfycbwWtZKbmY0QgzWgyu4CTNanYpuMqVulRSQ24PSbvsaYF8_9xewEGsVKNZ2YSBJAuUwU/exec";
+        // Your Google Apps Script Web App URL
+        const webAppUrl = "https://script.google.com/macros/s/AKfycbxTIYdwM_Gk25HcUgWWrifueZ_oJT1vXbGIBhFBm7T_vvyIImxX_kpG43tuF-h6eEQ/exec";
+        
+        // The secret handshake key for Server-Side Domain Locking
         const secretLockKey = "dduc_gh_auth_2026";
         
+        // Pass parameters and the lock key into the iframe
         if (g && t) {
             document.getElementById('gas-frame').src = webAppUrl + "?g=" + encodeURIComponent(g) + "&t=" + encodeURIComponent(t) + "&lock=" + secretLockKey;
         } else {
