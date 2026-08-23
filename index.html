@@ -1,54 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DDUC Student Verification</title>
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            background-color: #f1f5f9;
-            /* Prevents scrolling up to see the hidden banner */
-            overflow: hidden; 
-        }
-        
-        .iframe-wrapper {
-            width: 100%;
-            /* Make the wrapper taller to compensate for the shifted top */
-            height: calc(100% + 36px); 
-            /* Shift the iframe up by exactly 36px (the height of the Google banner) */
-            margin-top: -36px; 
-        }
+function doGet(e) {
+  // --- STRICT SERVER-SIDE DOMAIN LOCK ---
+  // Rejects any direct visits to the script URL that bypass GitHub
+  if (!e || !e.parameter || e.parameter.lock !== "dduc_gh_auth_2026") {
+    return showError("Unauthorized Access. You must scan the official QR code to view this record.");
+  }
 
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-    </style>
-</head>
-<body>
-    <div class="iframe-wrapper">
-        <iframe id="gas-frame" src=""></iframe>
-    </div>
+  let groupKey = "original";
+  let token = "";
 
-    <script>
-        // Extract the QR scan parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const g = urlParams.get('g') || '';
-        const t = urlParams.get('t') || '';
-        
-        // Your specific Google Apps Script Web App URL
-        const webAppUrl = "https://script.google.com/macros/s/AKfycbyda-Db7xvYXVKEAJxn_9q7NaUNFgjRtfBOx1X1ASQcArWUQLJ0EdVROmJwEZafVwlY/exec";
-        
-        // Pass the parameters directly into the iframe source
-        if (g && t) {
-            document.getElementById('gas-frame').src = webAppUrl + "?g=" + encodeURIComponent(g) + "&t=" + encodeURIComponent(t);
-        } else {
-            document.body.innerHTML = "<div style='text-align:center; padding-top: 50px; color:#c62828; font-weight:bold; font-family: sans-serif;'>Invalid Scan. No data provided.</div>";
-        }
-    </script>
-</body>
-</html>
+  if (e && e.parameter && e.parameter.g) groupKey = String(e.parameter.g).trim().toLowerCase();
+  if (e && e.parameter && e.parameter.t) token = String(e.parameter.t).trim();
+
+  if (!token) return showError("No security token was provided.");
+
+  // ... (The rest of your doGet code remains exactly the same below this point)
