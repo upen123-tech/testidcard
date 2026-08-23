@@ -2,81 +2,52 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Secure ID Verification</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDUC Student Verification</title>
     <style>
-        /* Reset and prevent scrolling on the body */
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
-            overflow: hidden;
             background-color: #f1f5f9;
-            font-family: sans-serif;
+            /* Prevents scrolling up to see the hidden banner */
+            overflow: hidden; 
         }
         
-        /* Iframe styling to hide the Google Banner */
-        #app-frame {
-            position: absolute;
-            top: -28px; /* Shifts the iframe up to hide the banner */
-            left: 0;
+        .iframe-wrapper {
             width: 100%;
-            height: calc(100% + 28px); /* Extends height to compensate */
-            border: none;
-            display: none; /* Hidden until domain check passes */
+            /* Make the wrapper taller to compensate for the shifted top */
+            height: calc(100% + 36px); 
+            /* Shift the iframe up by exactly 36px (the height of the Google banner) */
+            margin-top: -36px; 
         }
 
-        /* Loading / Error styles */
-        .message-container { display: flex; align-items: center; justify-content: center; height: 100vh; }
-        .message-box { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 400px; }
-        .spinner { width: 40px; height: 40px; border: 4px solid #e5e7eb; border-top: 4px solid #1e3a8a; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .error-text { color: #dc2626; font-weight: bold; margin-top: 10px; }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
     </style>
 </head>
 <body>
-
-    <!-- Loading State -->
-    <div class="message-container" id="status-container">
-        <div class="message-box">
-            <div class="spinner" id="spinner"></div>
-            <h2 id="status-title" style="color: #1e3a8a; margin: 0 0 10px 0;">Routing securely...</h2>
-            <p id="status-desc" style="color: #6b7280; font-size: 14px; margin: 0;">Please wait.</p>
-        </div>
+    <div class="iframe-wrapper">
+        <iframe id="gas-frame" src=""></iframe>
     </div>
 
-    <!-- The Iframe that will house the Google App Script -->
-    <iframe id="app-frame" sandbox="allow-top-navigation allow-scripts allow-forms allow-same-origin"></iframe>
-
     <script>
-        const allowedDomain = "upen123-tech.github.io";
-        const currentDomain = window.location.hostname;
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyda-Db7xvYXVKEAJxn_9q7NaUNFgjRtfBOx1X1ASQcArWUQLJ0EdVROmJwEZafVwlY/exec";
-
-        // Domain Check
-        if (currentDomain !== allowedDomain && currentDomain !== "localhost" && currentDomain !== "127.0.0.1" && currentDomain !== "") {
-            document.getElementById('spinner').style.display = 'none';
-            document.getElementById('status-title').innerText = "Access Denied";
-            document.getElementById('status-title').className = "error-text";
-            document.getElementById('status-desc').innerText = "Unauthorized domain detected. This verification portal can only be accessed via the official college URL.";
+        // Extract the QR scan parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const g = urlParams.get('g') || '';
+        const t = urlParams.get('t') || '';
+        
+        // Your specific Google Apps Script Web App URL
+        const webAppUrl = "https://script.google.com/macros/s/AKfycbyda-Db7xvYXVKEAJxn_9q7NaUNFgjRtfBOx1X1ASQcArWUQLJ0EdVROmJwEZafVwlY/exec";
+        
+        // Pass the parameters directly into the iframe source
+        if (g && t) {
+            document.getElementById('gas-frame').src = webAppUrl + "?g=" + encodeURIComponent(g) + "&t=" + encodeURIComponent(t);
         } else {
-            // Valid Domain! Setup the iframe URL with QR params
-            const params = window.location.search;
-            
-            if (params) {
-                // Construct URL and assign to iframe
-                const frame = document.getElementById('app-frame');
-                frame.src = WEB_APP_URL + params;
-                
-                // Hide the loading box and show the full-screen iframe
-                document.getElementById('status-container').style.display = 'none';
-                frame.style.display = 'block';
-            } else {
-                document.getElementById('spinner').style.display = 'none';
-                document.getElementById('status-title').innerText = "Invalid Request";
-                document.getElementById('status-title').className = "error-text";
-                document.getElementById('status-desc').innerText = "No secure token was found in the URL.";
-            }
+            document.body.innerHTML = "<div style='text-align:center; padding-top: 50px; color:#c62828; font-weight:bold; font-family: sans-serif;'>Invalid Scan. No data provided.</div>";
         }
     </script>
 </body>
